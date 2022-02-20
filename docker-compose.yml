@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  elasticsearch:
+    build:
+      context: ./docker/elasticsearch/
+      args:
+        ELASTICSEARCH_VERSION: 7.9.3
+    volumes:
+      - ./docker/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./docker/elasticsearch/data:/usr/share/elasticsearch/data
+    ports:
+      - "9300:9300"
+      - "9200:9200"
+    environment:
+      - ELASTIC_PASSWORD=password
+    networks:
+      - es-network
+
+  kibana:
+    build:
+      context: ./docker/kibana/
+      args:
+        KIBANA_VERSION: 7.9.3
+    volumes:
+      - ./docker/kibana/config/:/usr/share/kibana/config:ro
+    ports:
+      - "5601:5601"
+    networks:
+      - es-network
+    depends_on:
+      - elasticsearch
+
+networks:
+  es-network:
+    driver: "bridge"
